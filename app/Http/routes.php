@@ -19,3 +19,8 @@ Route::get('getListOrder/',[
 	'as' => 'getListOrder',
 	'uses' => 'API\OrderController@getListOrder',
 ]);
+
+Route::get('suggest/{id}',[
+	'as' => 'suggest',
+	'uses' => 'SuggestController@suggest',
+]);

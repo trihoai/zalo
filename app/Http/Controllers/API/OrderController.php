@@ -70,7 +70,6 @@ class OrderController extends Controller
                 ],
             ],
         ];
-        // dd($users);
         foreach ($users as $user) {
             for($i = 0; $i < 3; $i++){
                 for($j = $i+1; $j < 3; $j++){
