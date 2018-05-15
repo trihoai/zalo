@@ -16,3 +16,4 @@ Route::get('/', function () {
 });
 
 Route::get('data','DataController@data');
+Route::get('select','SelectController@select');
