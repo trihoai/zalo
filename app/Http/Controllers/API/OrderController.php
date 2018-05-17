@@ -70,6 +70,11 @@ class OrderController extends Controller
                 ],
             ],
         ];
+        $products_relation = array(['product_id_1' => 0, 
+                                    'product_id_2' => 0, 
+                                    'value' => 0]);
+        array_shift($products_relation);
+        $last_user = end($users);
         foreach ($users as $user) {
             for($i = 0; $i < 3; $i++){
                 for($j = $i+1; $j < 3; $j++){
@@ -90,21 +95,33 @@ class OrderController extends Controller
                     if ($product_id_1 > $product_id_2) {
                         list($product_id_1, $product_id_2) = array($product_id_2, $product_id_1);
                     }
-                    $object = DB::table('products_relation')
-                            ->where('object_1',$product_id_1)
-                            ->where('object_2',$product_id_2)->first();
-                    if ($object == NULL) {
-                        DB::table('products_relation')->insert([
-                            'object_1' => $product_id_1,
-                            'object_2' => $product_id_2,
-                            'value' => $value
-                        ]);
-                    }else{
-                        $object->value += $value;
-                        $object = DB::table('products_relation')
-                            ->where('object_1',$product_id_1)
-                            ->where('object_2',$product_id_2)
-                            ->update(['value' => $object->value]);
+                    if (sizeof($products_relation) < 5) {
+                        array_push($products_relation, ['product_id_1' => $product_id_1, 
+                                                'product_id_2' => $product_id_2, 
+                                                'value' => $value]);
+                    }if(sizeof($products_relation) >= 5 || ($user == $last_user && $i==1 && $j==2)){
+                        foreach ($products_relation as $product) {
+                            $product_id_1 = $product['product_id_1'];
+                            $product_id_2 = $product['product_id_2'];
+                            $value = $product['value'];
+                            $object = DB::table('products_relation')
+                                    ->where('object_1',$product_id_1)
+                                    ->where('object_2',$product_id_2)->first();
+                            if ($object == NULL) {
+                                DB::table('products_relation')->insert([
+                                    'object_1' => $product_id_1,
+                                    'object_2' => $product_id_2,
+                                    'value' => $value
+                                ]);
+                            }else{
+                                $object->value += $value;
+                                $object = DB::table('products_relation')
+                                    ->where('object_1',$product_id_1)
+                                    ->where('object_2',$product_id_2)
+                                    ->update(['value' => $object->value]);
+                            }
+                            array_forget($products_relation, $product);
+                        }
                     }
                 }
             }
